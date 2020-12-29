@@ -12,7 +12,7 @@ with open(sys.argv[1], mode='r') as csv_file:
 #		sys.exit()
 		aa  = row['Amino acid']
 		at  = row['atom type']
-		fg  = row['chemical group']
+		fg  = row['functional group']
 		min = row['min']
 		max = row['max']
 		print(f'{aa},{at},{fg},{min},{max}')

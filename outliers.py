@@ -1,11 +1,28 @@
 #!/usr/bin/python3
 
+import argparse
 import sys
 import csv
 import numpy as np
 import pandas as pd
 
-dataset = pd.read_json(sys.argv[1],compression='xz').reset_index()
+parser = argparse.ArgumentParser(description='Find outliers relative to ideal ranges')
+parser.add_argument('--data','-d', required=True, type=str,
+	metavar='<str>', help='json db')
+parser.add_argument('--ranges','-a', required=True, type=str,
+	metavar='<str>', help='range table csv')
+parser.add_argument('--by_res','-r', action='store_true',
+	help='perform analysis by residue')
+parser.add_argument('--by_grp','-g', action='store_true',
+	help='perform analyssi by functional group')
+
+arg = parser.parse_args()
+
+if not arg.by_res and not arg.by_grp:
+	print('Need to choose one of the modes')
+	sys.exit()
+
+dataset = pd.read_json(arg.data,compression='xz').reset_index()
 
 def find_outliers(df, atom, min, max, res):
 	
@@ -24,6 +41,18 @@ def find_outliers(df, atom, min, max, res):
 		
 		for i, cs in enumerate(shifts):
 			if cs is None: continue
+			if res == '':
+				total += 1
+				if cs > max:
+					outliers += 1
+					out_shifts.append(cs)
+				elif cs < min:
+					outliers += 1
+					out_shifts.append(cs)
+				else:
+					good += 1
+					
+					
 			if seq[i] == res:
 				total += 1
 				if cs > max: 
@@ -37,9 +66,12 @@ def find_outliers(df, atom, min, max, res):
 				else:
 					good += 1
 		
-	return total, good, outliers, np.mean(np.array(out_shifts)), np.std(np.array(out_shifts))
+	return good, out_shifts
 
-with open(sys.argv[2], mode='r') as csv_file:
+if arg.by_grp:
+	results = dict()
+
+with open(arg.ranges, mode='r') as csv_file:
 	csv_reader = csv.DictReader(csv_file)
 	
 	for row in csv_reader:
@@ -53,6 +85,20 @@ with open(sys.argv[2], mode='r') as csv_file:
 		
 		df = dataset[['name','seq',at]].copy().reset_index()
 		
-		total, passed, failed, mean, std = find_outliers(df, at, min, max, aa)
-		print(f'{aa}  {at}  {failed}, {min}, {max}, {total}, {mean:.4f}, {std:.4f}')
+		if arg.by_res:
+			passed, outs = find_outliers(df, at, min, max, aa)
+			print(f'{aa}, {at}, {len(outs)}, {good+len(out_shifts)}, {len(outs)/(good+len(outs))}')
+		if arg.by_grp:
+			passed, outs = find_outliers(df, at, min, max, '')
+			if fg not in results:
+				results[fg] = dict()
+				results[fg]['passed'] = passed
+				results[fg]['outs'] = outs
+			else:
+				results[fg]['passed'] += passed
+				results[fg]['outs'] += outs
 
+if arg.by_grp:
+	for k in results.keys():
+		o = len(results[k]['outs'])
+		print(f"{k} {o} {o/(o+results[k]['passed']):.4f}")

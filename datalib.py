@@ -198,3 +198,7 @@ def strong_filter(df, atoms, sigma):
 					break
 	
 	return dfcopy
+
+def full_residues(df, atoms):
+	
+	pass
