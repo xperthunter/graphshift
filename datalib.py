@@ -13,8 +13,6 @@ import numpy as np
 import pandas as pd
 import scipy.stats
 
-gg = Graph()
-
 aa_encoding = {
 	'A':1, 'C':2, 'D':3, 'E':4, 'F':5, 
 	'G':6, 'H':7, 'I':8, 'K':9, 'L':10, 
@@ -218,6 +216,8 @@ def strong_filter(df, atoms, sigma):
 	return dfcopy
 
 def make_graph(seq):
+	print(seq)
+	print(type(seq))
 	seq = seq.rstrip()
 	seq = seq.upper()
 	g = Graph()
