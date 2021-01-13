@@ -7,7 +7,7 @@ Library for manipulation and analysis of BMRB Chemical Shift data
 import os
 import sys
 import json
-import networkx as nx
+import networkx
 import urllib.request
 import numpy as np
 import pandas as pd
@@ -218,7 +218,7 @@ def strong_filter(df, atoms, sigma):
 def make_graph(seq):
 	seq = seq.rstrip()
 	seq = seq.upper()
-	g = networkx.nx.Graph()
+	g = networkx.Graph()
 	g.add_node(0,aa_type=aa_encoding[seq[0]],
 		chem_type=polarity_encoding[chem_encoding[seq[0]]]
 	)
