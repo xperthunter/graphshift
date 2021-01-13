@@ -36,6 +36,8 @@ polarity_encoding = {
 	' ': 0
 }
 
+zz = np.zeros(5)
+
 def mean_std(df, atm_name):
 	mask = ~df[atm_name].isna()
 	
