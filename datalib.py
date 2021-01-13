@@ -7,6 +7,7 @@ Library for manipulation and analysis of BMRB Chemical Shift data
 import os
 import sys
 import json
+import networkx as nx
 import urllib.request
 import numpy as np
 import pandas as pd
@@ -18,6 +19,21 @@ aa_encoding = {
 	'M':11, 'N':12, 'P':13, 'Q':14, 'R':15,
 	'S':16, 'T':17, 'V':18, 'W':19, 'Y':20,
 	'X':21
+}
+
+chem_encoding = {
+	'A':'N', 'C':'N', 'D':'C', 'E':'C', 'F':'N', 
+	'G':'P', 'H':'C', 'I':'N', 'K':'C', 'L':'N', 
+	'M':'N', 'N':'P', 'P':'N', 'Q':'P', 'R':'C',
+	'S':'P', 'T':'P', 'V':'N', 'W':'N', 'Y':'N',
+	'X':' '		
+}
+
+polarity_encoding = {
+	'N': 1,
+	'P': 2,
+	'C': 3,
+	' ': 0
 }
 
 def mean_std(df, atm_name):
@@ -199,6 +215,22 @@ def strong_filter(df, atoms, sigma):
 	
 	return dfcopy
 
-def full_residues(df, atoms):
+def make_graph(seq):
+	seq = seq.rstrip()
+	seq = seq.upper()
+	g   = nx.graph()
+	g.add_node(0,aa_type=aa_encoding[seq[0]],
+		chem_type=polarity_encoding[chem_encoding[seq[0]]]
+	)
 	
-	pass
+	for i in range(len(seq)-1):
+		try:
+			g.add_node(i+1, aa_type=aa_encoding[seq[i+1]],
+				chem_type=polarity_encoding[chem_encoding[seq[i+1]]]
+			)
+		except:
+			print('error', seq, seq[i], seq[i+1], len(seq))
+		
+		g.add_edge(i, i+1, weight=1.0, dummy=1.5)
+	
+	return g
