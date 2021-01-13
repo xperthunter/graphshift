@@ -218,15 +218,11 @@ def strong_filter(df, atoms, sigma):
 def make_graph(seq):
 	
 	g = Graph()
-	g.add_node(0,aa_type=aa_encoding[seq[0]],
-		chem_type=polarity_encoding[chem_encoding[seq[0]]]
-	)
+	g.add_node(0,aa_type=aa_encoding[seq[0]],chem_type=polarity_encoding[chem_encoding[seq[0]]])
 	
 	for i in range(len(seq)-1):
 		try:
-			g.add_node(i+1, aa_type=aa_encoding[seq[i+1]],
-				chem_type=polarity_encoding[chem_encoding[seq[i+1]]]
-			)
+			g.add_node(i+1, aa_type=aa_encoding[seq[i+1]],chem_type=polarity_encoding[chem_encoding[seq[i+1]]])
 		except:
 			print('error', seq, seq[i], seq[i+1], len(seq))
 		
