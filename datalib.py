@@ -220,7 +220,13 @@ def strong_filter(df, atoms, sigma):
 def make_graph(seq):
 	
 	g = Graph()
-	g.add_node(0,aa_type=aa_encoding[seq[0]],chem_type=polarity_encoding[chem_encoding[seq[0]]])
+	return g
+	
+
+
+
+"""
+g.add_node(0,aa_type=aa_encoding[seq[0]],chem_type=polarity_encoding[chem_encoding[seq[0]]])
 	
 	for i in range(len(seq)-1):
 		try:
@@ -231,3 +237,4 @@ def make_graph(seq):
 		g.add_edge(i, i+1, weight=1.0, dummy=1.5)
 	
 	return g
+"""
