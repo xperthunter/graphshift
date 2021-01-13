@@ -7,11 +7,13 @@ Library for manipulation and analysis of BMRB Chemical Shift data
 import os
 import sys
 import json
-from networkx import Graph
+from networkx import *
 import urllib.request
 import numpy as np
 import pandas as pd
 import scipy.stats
+
+gg = Graph()
 
 aa_encoding = {
 	'A':1, 'C':2, 'D':3, 'E':4, 'F':5, 
