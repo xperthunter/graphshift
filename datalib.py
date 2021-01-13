@@ -216,10 +216,10 @@ def strong_filter(df, atoms, sigma):
 	return dfcopy
 
 def make_graph(seq):
-	print(seq)
-	print(type(seq))
-	seq = seq.rstrip()
-	seq = seq.upper()
+	#print(seq)
+	#print(type(seq))
+	#seq = seq.rstrip()
+	#seq = seq.upper()
 	g = Graph()
 	g.add_node(0,aa_type=aa_encoding[seq[0]],
 		chem_type=polarity_encoding[chem_encoding[seq[0]]]
