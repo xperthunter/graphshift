@@ -1,0 +1,79 @@
+Total number of sequences      :  9990
+Total number of chemical shifts:  7010426
+Number of unique sequences     :  8298
+k-size:  1 unique words:      20 obs:  970146
+k-size:  2 unique words:     400 obs:  958320
+k-size:  3 unique words:    7993 obs:  947721
+k-size:  4 unique words:  127330 obs:  937395
+k-size:  5 unique words:  461498 obs:  927216
+k-size:  6 unique words:  561058 obs:  917133
+k-size:  7 unique words:  571896 obs:  907170
+k-size:  8 unique words:  573234 obs:  897290
+k-size:  9 unique words:  572784 obs:  887488
+k-size: 10 unique words:  571092 obs:  877774
+
+Number of sequences after 10% Filtering:    3666
+Total number of chemical shifts        : 3240812
+k-size:  1 unique words:      20 obs:  405214
+k-size:  2 unique words:     400 obs:  401457
+k-size:  3 unique words:    7978 obs:  397718
+k-size:  4 unique words:  113807 obs:  393989
+k-size:  5 unique words:  326911 obs:  390271
+k-size:  6 unique words:  371784 obs:  386561
+k-size:  7 unique words:  373599 obs:  382865
+k-size:  8 unique words:  371661 obs:  379178
+k-size:  9 unique words:  369189 obs:  375501
+k-size: 10 unique words:  366359 obs:  371830
+
+Number of sequences after 40% Filtering:    3954
+Total number of chemical shifts        : 3593431
+k-size:  1 unique words:      20 obs:  448010
+k-size:  2 unique words:     400 obs:  443965
+k-size:  3 unique words:    7982 obs:  439938
+k-size:  4 unique words:  117393 obs:  435920
+k-size:  5 unique words:  357101 obs:  431913
+k-size:  6 unique words:  411234 obs:  427913
+k-size:  7 unique words:  413783 obs:  423927
+k-size:  8 unique words:  411788 obs:  419950
+k-size:  9 unique words:  409172 obs:  415983
+k-size: 10 unique words:  406157 obs:  412023
+
+Number of sequences after 50% Filtering:    4322
+Total number of chemical shifts        : 3955461
+k-size:  1 unique words:      20 obs:  493787
+k-size:  2 unique words:     400 obs:  489346
+k-size:  3 unique words:    7989 obs:  484939
+k-size:  4 unique words:  120501 obs:  480543
+k-size:  5 unique words:  387071 obs:  476159
+k-size:  6 unique words:  452061 obs:  471785
+k-size:  7 unique words:  455734 obs:  467428
+k-size:  8 unique words:  453825 obs:  463082
+k-size:  9 unique words:  451104 obs:  458746
+k-size: 10 unique words:  447878 obs:  454418
+
+Number of sequences after 80% Filtering:    4784
+Total number of chemical shifts        : 4355350
+k-size:  1 unique words:      20 obs:  541076
+k-size:  2 unique words:     400 obs:  536194
+k-size:  3 unique words:    7993 obs:  531328
+k-size:  4 unique words:  123280 obs:  526473
+k-size:  5 unique words:  412096 obs:  521629
+k-size:  6 unique words:  486941 obs:  516792
+k-size:  7 unique words:  492978 obs:  511972
+k-size:  8 unique words:  492278 obs:  507164
+k-size:  9 unique words:  490325 obs:  502365
+k-size: 10 unique words:  487521 obs:  497576
+
+Number of sequences after 90% Filtering:    4437
+Total number of chemical shifts        : 3916165
+k-size:  1 unique words:      20 obs:  487874
+k-size:  2 unique words:     400 obs:  483358
+k-size:  3 unique words:    7990 obs:  478852
+k-size:  4 unique words:  119944 obs:  474355
+k-size:  5 unique words:  373622 obs:  469867
+k-size:  6 unique words:  432952 obs:  465384
+k-size:  7 unique words:  437934 obs:  460917
+k-size:  8 unique words:  437688 obs:  456461
+k-size:  9 unique words:  436310 obs:  452015
+k-size: 10 unique words:  434099 obs:  447578
+
