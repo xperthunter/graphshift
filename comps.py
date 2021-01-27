@@ -56,6 +56,12 @@ with Pool(processes=6) as pool:
 print(len(res))
 print(res[:20])
 
+for l in res:
+	if l is None: continue
+	elif type(l) == tuple:
+		print(l)
+		sys.exit()
+
 """
 for p in idxs:
 	r, c = p
