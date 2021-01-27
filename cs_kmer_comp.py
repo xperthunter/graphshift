@@ -88,11 +88,9 @@ for indx, row in bb_df.iloc[0:].iterrows():
 		kmer = seq[i:i+k]
 		
 		kshifts = []
-		kshifts = row['N'][i:i+k]
-#		kshifts.extend(row['H'][i:i+k])
-#		kshifts.extend(row['CA'][i:i+k])
-#		kshifts.extend(row['HA'][i:i+k])
-#		kshifts.extend(row['C'][i:i+k])
+		
+		for atm in atm_cols:
+			kshifts.extend(row[atm][i:i+k])
 	
 	if kmer not in kmer_shifts:
 		kmer_shifts[kmer] = list()
