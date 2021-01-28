@@ -9,10 +9,12 @@ import numpy as np
 import pandas as pd
 import sys
 
-import sequence_filter
+#import sequence_filter
 
 dfin = pd.read_json(sys.argv[1],compression='xz').reset_index()
 print(f'Input shape: {dfin.shape}')
+print(dfin.head(10))
+#sys.exit()
 
 #keep = sequence_filter.identity_filter(sys.argv[2], 50)
 #df = dfin[dfin['name'].isin(keep)]
@@ -20,6 +22,7 @@ print(f'Input shape: {dfin.shape}')
 
 #heldout_df = dfin[~dfin['name'].isin(keep)]
 idx = dfin['index'].to_list()
+#idx = idx[:1000]
 print(f'indexes: {len(idx)}')
 idxs = [(i, j) for i, j in itertools.product(idx, idx) 
 		if i < j]
@@ -28,9 +31,9 @@ print(f'comparisons: {len(idxs)}')
 def viable(shift1, shift2):
 	n = 0
 	for s1, s2 in zip(shift1, shift2):
-		if s1 != None and s2 != None: n += 1
+		if s1 != None or s2 != None: n += 1
 		if n > 10: return True
-	return False 
+	return False
 
 def identical_data(x):
 	x1, x2 = x
@@ -44,21 +47,23 @@ def identical_data(x):
 		#if len(r1[col]) != len(r2[col]): continue
 		diff = False
 		if viable(r1[col], r2[col]):
+			#print('viable?',x1, x2, col, diff)
 			for s1, s2 in zip(r1[col], r2[col]):
-				if s1 is None and s2 is None: continue
+				if s1 == None and s2 == None: continue
 				if s1 != s2:
 					diff = True
+					#print(x1, x2, col, s1, s2, diff)
+					#sys.exit()
 					break
-		else:
-			continue
-		
-		if ~diff:
-			matches.append((x1, x2, col))
-	
-	if len(matches) > 0: return matches
-	else: return matches
+				#print(s1,s2, diff)
+			#print(diff)
+			if diff == False:
+				#print('appending to matches', diff)
+				matches.append((x1, x2, col))
+		else: continue
+	return matches
 
-with Pool(processes=12) as pool:
+with Pool(processes=120) as pool:
 	res = pool.map(identical_data, idxs)
 
 print(len(res))
