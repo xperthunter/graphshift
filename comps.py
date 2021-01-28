@@ -25,6 +25,13 @@ idxs = [(i, j) for i, j in itertools.product(idx, idx)
 		if i < j]
 print(f'comparisons: {len(idxs)}')
 
+def viable(shift1, shift2):
+	n = 0
+	for s1, s2 in zip(shift1, shift2):
+		if s1 != None and s2 != None: n += 1
+		if n > 10: return True
+	return False 
+
 def identical_data(x):
 	x1, x2 = x
 	r1 = dfin.loc[x1]
@@ -36,11 +43,14 @@ def identical_data(x):
 		if b1 or b2: continue
 		#if len(r1[col]) != len(r2[col]): continue
 		diff = False
-		for s1, s2 in zip(r1[col], r2[col]):
-			if s1 is None and s2 is None: continue
-			if s1 != s2:
-				diff = True
-				break
+		if viable(r1[col], r2[col]):
+			for s1, s2 in zip(r1[col], r2[col]):
+				if s1 is None and s2 is None: continue
+				if s1 != s2:
+					diff = True
+					break
+		else:
+			continue
 		
 		if ~diff:
 			matches.append((x1, x2, col))
@@ -59,6 +69,8 @@ for l in res:
 	if len(l) > 0:
 		for tup in l:
 			i, j, atm = tup
+			if i in kill:
+				if atm in kill[i]: continue
 			if j not in kill: kill[j] = dict()
 			kill[j][atm] = True
 
