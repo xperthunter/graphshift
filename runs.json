@@ -1,0 +1,17 @@
+[
+	{
+		"name":"gs_350",
+		"errfile":"gs_350.err",
+		"outfile":"gs_350.out",
+		"alpha":1e-2,
+		"tol":1e-3,
+		"trainum":350,
+		"val":-1,
+		"batchsize":-1,
+		"data":"data/nmrshift",
+		"kernel":"optimized",
+		"mem":100,
+		"gpu_mem":10,
+		"slurm_outs":"slurm_outs"
+	}
+]

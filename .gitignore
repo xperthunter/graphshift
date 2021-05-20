@@ -10,5 +10,6 @@ saved_models/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
+pycuda_cache/
 *.py[cod]
 *$py.class
