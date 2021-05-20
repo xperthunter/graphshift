@@ -5,7 +5,7 @@ import os
 import pickle
 import sys
 
-from batchedGRP import BatchedGaussianProcessRegressor
+from batchedGPR import BatchedGaussianProcessRegressor
 from graphshift_lib import make_df, make_maskshifts, rmse
 import numpy as np
 import pandas as pd
