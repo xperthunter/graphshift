@@ -1,0 +1,4 @@
+# Don't track SLURM out/err files
+# Place all SLURM out/err files here for ignoring
+
+slurm_outs/
