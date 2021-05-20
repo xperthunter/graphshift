@@ -1,4 +1,14 @@
 # Don't track SLURM out/err files
 # Place all SLURM out/err files here for ignoring
-
 slurm_outs/
+
+# Don't track data
+data/
+
+# Don't track completed models
+saved_models/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
