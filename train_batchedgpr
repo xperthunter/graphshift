@@ -1,11 +1,14 @@
 #!/usr/bin/python3
 
 import argparse
+import os
+import pickle
 import sys
 
 from batchedGRP import BatchedGaussianProcessRegressor
 from graphshift_lib import make_df, make_maskshifts, rmse
 import numpy as np
+import pandas as pd
 
 parser = argparse.ArgumentParser(description=''.join(('Train batched GPR with ',
 	'small molecule chemical shifts and structures')))
@@ -19,8 +22,12 @@ parser.add_argument('--batch', '-b', required=True,
 	metavar='<int>', help='batch size')
 parser.add_argument('--tol', '-t', required=False, default=1e-3,
 	metavar='<float>', help='tolerance for optimization')
+parser.add_argument('--alpha', '-p', required=False, default=1e-8,
+	metavar='<float>', help='alpha level')
 parser.add_argument('--val', '-v', required=False, default=1000,
 	metavar='<int>', help='validation size')
+parser.add_argument('--held', '-u', required=False,
+	metavar='<str>', help='held out validation data')
 parser.add_argument('--out', '-o', required=True,
 	metavar='<str>', help='directory for saved models')
 parser.add_argument('--name', '-f', required=False, default='model.pickle',
@@ -31,21 +38,27 @@ parser.add_argument('--load', '-l', required=False,
 arg        = parser.parse_args()
 n          = int(arg.train)
 tol        = float(arg.tol)
+alpha      = float(arg.alpha)
 nv         = int(arg.val)
 chunk_size = int(arg.batch)
 atom       = str(arg.atom)
 out_path   = str(arg.out)
 out_name   = str(arg.name)
 
+df = pd.read_pickle(arg.data,compression='xz')
+
 if arg.load:
 	pass
 
-df = make_df(arg.data)
-
 X  = df.graphs[:n]
 Y  = make_maskshifts(df.shifts[:n].to_list(), df.symbols[:n].to_list(), atom)
-Xv = df.graphs[n:n+nv]
-Yv = make_maskshifts(df.shifts[n:n+nv].to_list(), df.symbols[n:n+nv].to_list(), atom)
+
+if nv == -1:
+	Xv = df.graphs[n:]
+	Yv = make_maskshifts(df.shifts[n:].to_list(), df.symbols[n:].to_list(), atom)
+else:
+	Xv = df.graphs[n:n+nv]
+	Yv = make_maskshifts(df.shifts[n:n+nv].to_list(), df.symbols[n:n+nv].to_list(), atom)	
 
 train_nodes = [len(g.nodes['!i']) for g in X]
 train_nodes = np.sum(np.array(train_nodes))
@@ -61,19 +74,35 @@ validation shifts: {Yv.compressed().shape[0]}
 validation nodes: {test_nodes}
 """)
 
-bgpr = BatchedGaussianProcessRegressor(chunk_size=chunk_size)
+bgpr = BatchedGaussianProcessRegressor(chunk_size=chunk_size, alpha=alpha)
 bgpr.fit(X,Y,tol=tol)
 
 if bgpr.success:
-	train_preds = bgpr.predict(X, Y, alpha=bgpr.alpha)
+	train_preds = bgpr.predict(X, Y)
 	test_preds  = bgpr.predict(Xv, Yv)
 	
 	inRMSE  = rmse(train_preds, Y.compressed())
 	outRMSE = rmse(test_preds, Yv.compressed())
 	
+	inMAE  = np.mean(np.abs(train_preds - Y.compressed()))
+	outMAE = np.mean(np.abs(test_preds - Yv.compressed()))
+		
 	print(f'Train RMSE: {inRMSE:1.4E}')
 	print(f'Test RMSE : {outRMSE:1.4E}')
 	
+	print(f'Train MAE: {inMAE:1.4E}')
+	print(f'Test MAE: {outMAE:1.4E}')
+	
 	bgpr.save(out_path, filename=out_name, overwrite=True)
+	
+	predictions = {'train':dict(), 'test':dict()}
+	predictions['train']['pred'] = train_preds
+	predictions['train']['gt']   = Y.compressed()
+	
+	predictions['test']['pred'] = test_preds
+	predictions['test']['gt']   = Yv.compressed()
+	
+	pred_file = os.path.join(out_path, 'predictions_'+out_name)
+	pickle.dump(predictions, open(pred_file, 'wb'), protocol=3)
 else:
 	print('fit not successful')
