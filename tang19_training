@@ -5,7 +5,7 @@ import os
 import pickle
 import sys
 
-from batchedGRP import BatchedGaussianProcessRegressor
+from batchedGPR import BatchedGaussianProcessRegressor
 from graphshift_lib import make_df, make_maskshifts, rmse
 import numpy as np
 import pandas as pd
@@ -45,6 +45,7 @@ atom       = str(arg.atom)
 out_path   = str(arg.out)
 out_name   = str(arg.name)
 
+print(arg.data)
 df = pd.read_pickle(arg.data,compression='xz')
 
 X  = df.graphs[:n]
@@ -72,7 +73,7 @@ validation nodes: {test_nodes}
 """)
 
 bgpr = BatchedGaussianProcessRegressor(chunk_size=chunk_size, alpha=alpha, optimize=False)
-complete = bgpr.fit(X,Y,tol=tol,x0=[0.3, 0.05, 0.05, 250])
+complete = bgpr.fit(X,Y,tol=tol,x0=[0.3, 0.05, 0.05, 250.0])
 
 if complete:
 	train_preds = bgpr.predict(X, Y)

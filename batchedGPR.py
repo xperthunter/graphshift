@@ -294,8 +294,10 @@ class BatchedGaussianProcessRegressor():
 			# logP
 			yky = self.cs @ self.Ky
 			self.log_marginal_prob = yky + logdet
+			return True
 		else:
 			print(opt_results)
+			return False
 	
 	def predict(self, yg, ym, alpha=None):
 		self.yg = yg

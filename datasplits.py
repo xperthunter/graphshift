@@ -22,8 +22,14 @@ firstpass = []
 allowed = ['H', 'C', 'N', 'O', 'F', 'S', 'P', 'Cl']
 for row in data:
 	if len(row['shifts']) > 64: continue
+	skip = False
 	for sym in row['symbols']:
-		if sym not in allowed: continue
+		if sym not in allowed:
+			skip = True
+			break
+	
+	if skip:
+		continue
 	
 	skip = False
 	for sym, shift in zip(row['shifts'], row['symbols']):
@@ -145,6 +151,10 @@ while x < 100:
 # Half the data set
 half = math.ceil(len(datafilter2)/2)
 print(half)
+
+with open('first_filter.json', 'w') as f:
+	print(json.dumps(datafilter2), file=f)
+f.close()
 
 with open('new_training.json', 'w') as fp:
 	print(json.dumps(datafilter2[:half]), file=fp)

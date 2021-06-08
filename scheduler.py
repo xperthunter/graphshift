@@ -2,24 +2,38 @@
 
 import argparse
 import json
+import time
 import subprocess
 import sys
 
 sample = {
-	"name"       : None,
-	"errfile"    : None,
-	"outfile"    : None,
-	"alpha"      : None,
-	"tol"        : None,
-	"trainum"    : None,
-	"val"        : None,
-	"batchsize"  : None,
-	"data"       : None,
-	"kernel"     : None,
-	"mem"        : None,
-	"gpu_mem"    : None,
-	"slurm_outs" : None
+	"name"          : None,
+	"errfile"       : None,
+	"outfile"       : None,
+	"alpha"         : None,
+	"tol"           : None,
+	"trainum"       : None,
+	"val"           : None,
+	"batchsize"     : None,
+	"data"          : None,
+	"kernel"        : None,
+	"mem"           : None,
+	"gpu_mem"       : None,
+	"slurm_outs"    : None,
+	"save"          : None,
+	"shuffle"       : None,
+	"h_elm"         : None,
+	"h_elm_range"   : None,
+	"l_scale"       : None,
+	"l_scale_range" : None,
+	"starting_prob" : None,
+	"starting_range": None,
+	"stopping_prob" : None,
+	"stopping_range": None,
+	"optimize"      : None,
+	"atom"          : None
 }
+
 skeys = sample.keys()
 def keycheck(dic, sample):
 	for k in dic.keys():
@@ -42,8 +56,19 @@ parser.add_argument('--config', '-c', required=True, type=str,
 	metavar='<str>', help='path to json with configurations for models to be trained')
 parser.add_argument('--slurm', '-s', required=True, type=str,
 	metavar='<str>', help='path to slurm scheduler')
+parser.add_argument('--submitted', '-u', required=True, type=str,
+	metavar='<str>', help='json of submitted jobs')
+
 arg = parser.parse_args()
 
+if arg.submitted:
+	with open(arg.submitted, 'r') as fp:
+		submitted = json.load(fp)
+	
+	names = []
+	for c in submitted:
+		names.append(c['name'])
+	
 with open(arg.config) as config:
 	configs = json.load(config)
 	assert(type(configs) is list)
@@ -53,58 +78,48 @@ cmd_1 = f"bash {arg.slurm}"
 for c in configs:
 	assert(type(c) is dict)
 	assert(keycheck(c, sample))
+	if c['name'] in names:
+		print(json.dumps(c, indent=2))
+		print(f"{c['name']} already used, skipping")
+		continue
+	
+	time.sleep(1)
+	
+	tmp_dic = c.copy() 
+	tmp_dic.pop('errfile')
+	tmp_dic.pop('outfile')
+	tmp_dic.pop('mem')
+	tmp_dic.pop('gpu_mem')
+	tmp_dic.pop('slurm_outs')
+	
+	timestr = time.strftime("%Y%m%d_%H%M%S")
+	tmp_name = f"tmp.config.{c['name']}.{timestr}.json"
+	print(tmp_name)
+	with open(tmp_name, 'w') as fp:
+		json.dump(tmp_dic, fp)
 	
 	cmd = ''.join((cmd_1,
 				   f" -e {c['errfile']}",
 				   f" -o {c['outfile']}",
 				   f" -m {c['mem']}",
 				   f" -g {c['gpu_mem']}",
-				   f" -l {c['slurm_outs']}"))
+				   f" -l {c['slurm_outs']}",
+				   f" -j {tmp_name}"))
+	
 	print(cmd)
 	cmd_list = cmd.split()
-	print(cmd_list)
 	retval = subprocess.check_output(cmd_list)
 	result = retval.decode('utf-8')
 	print(result,end="")
-
-"""
-arg        = parser.parse_args()
-n          = int(arg.train)
-tol        = float(arg.tol)
-chunk_size = int(arg.batch)
-out_path   = str(arg.out)
-
-df = pd.read_pickle(arg.data,compression='xz')
-
-print(df.shape)
-
-for i in range(0, df.shape[0], n):
-	if i+n < df.shape[0]: print(i,i+n)
-	else:                 print(i, df.shape[0])
+	resplit = result.split()
+	if resplit[0] == 'Submitted': 
+		jobid = int(resplit[-1])
+	else:
+		print('job not submitted')
+		sys.exit()
 	
-df[:i], df[i+n:]
+	tmp_dic['jobid'] = jobid
+	submitted.append(tmp_dic)
 
-n = 1000
-tot 19347
-19 diff models
-n = 1800
-be 18
-whatever is left over, make a new file for remainder_n.pickle.xz
-
-bgpr_n_1.model.pickle
-bgpr_1000_1.model.pickle
-bgpr_1000_2.model.pickle
-
-parser.add_argument('--data', '-d', required=True, type=str,
-	metavar='<str>', help='xz zipped pickled pandas dataframe')
-parser.add_argument('--train', '-n', required=True,
-	metavar='<int>', help='training set size')
-parser.add_argument('--batch', '-b', required=True,
-	metavar='<int>', help='batch size')
-parser.add_argument('--tol', '-t', required=False, default=1e-3,
-	metavar='<float>', help='tolerance for optimization')
-parser.add_argument('--out', '-o', required=True,
-	metavar='<str>', help='directory for saved models')
-
-
-"""
+with open(arg.submitted, 'w') as fp:
+	json.dump(submitted, fp)
