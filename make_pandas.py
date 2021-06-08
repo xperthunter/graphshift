@@ -10,5 +10,5 @@ import pandas as pd
 df_training   = gl.make_df(sys.argv[1])
 df_validation = gl.make_df(sys.argv[2])
 
-df_training.to_pickle('nmrshift_training.pickle')
-df_validation.to_pickle('nmrshift_validation.pickle') 
+df_training.to_pickle('nmrshift_training_filter_atom.pickle')
+df_validation.to_pickle('nmrshift_validation_filter_atom.pickle') 

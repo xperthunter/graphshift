@@ -152,14 +152,14 @@ while x < 100:
 half = math.ceil(len(datafilter2)/2)
 print(half)
 
-with open('first_filter.json', 'w') as f:
-	print(json.dumps(datafilter2), file=f)
-f.close()
+# with open('first_filter.json', 'w') as f:
+# 	print(json.dumps(datafilter2), file=f)
+# f.close()
 
-with open('new_training.json', 'w') as fp:
+with open('new_training_filter_atom.json', 'w') as fp:
 	print(json.dumps(datafilter2[:half]), file=fp)
 fp.close()
 
-with open('new_validation.json', 'w') as fp1:
+with open('new_validation_filter_atom.json', 'w') as fp1:
 	print(json.dumps(datafilter2[half:]), file=fp1)
 fp1.close()
