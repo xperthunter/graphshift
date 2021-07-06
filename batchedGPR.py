@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 
+"""
+Class definition for performancing GPR with batches in GraphDot
+"""
+
 import itertools
 import math
 import os
@@ -23,21 +27,51 @@ import numpy as np
 from scipy.optimize import minimize
 
 class BatchedGaussianProcessRegressor():
+	"""
+	
+	Parameters
+	----------
+	active: bool
+		User option for specifying if batches will filtered by atom type being 
+		predicted on. Default True. If false, model is built from all nodes in
+		training graphs.
+	alpha: float > 0
+		Value added to diagonal of kernel matrix to ensure matrix is postive 
+		definite. Higher values of alpha corresponds to increase noise level in
+		observations. Default 1e-3.
+	chunk_size: int > 0
+		Number of graphs sent to kernel function at any given time. In other 
+		words, blocks in the kernel matrix contain `chunk_size` graphs. 
+		Example: if training on 1000 graphs, a chunk_size of 100 means only 100
+		graphs are sent to the specified kernel at any given time. Further, the
+		kernel matrix is constructed in blocks of size 
+		`chunk_size`/2 -by- `chunk_size`/2. So in case `chunk_size`=100, blocks
+		are size 50 -by- 50. `chunk_size` is required.
+	kernel: None or a Graphdot Kernel instance
+		The covariance function for the GP.
+		If None, the kernel is built internally. 
+	mode: one of 'clamp' or 'truncate'
+		Matrix inversion method specified in graphdot.linalg.spectral.pinvh
+	optimize: bool
+		If False, no optimization is performed. Model is still built using the 
+		batched kernel calls. 
+		If True, optimization is performed. 
+	"""
 	def __init__(self, active=True, chunk_size=None, verbose=False,
-		alpha=1e-3, mode='clamp', optimize=True):
+		alpha=1e-3, mode='clamp', optimize=True, kernel=None):
 		
 		assert(type(optimize) is bool)
 		if chunk_size == None:
 			print('Must provide a chunk size')
 			sys.exit()
 		self.active = active
-		self.chunk_size = math.ceil(chunk_size/2)
+		self.chunk_size = math.ceil(chunk_size/2) # 
 		self.alpha = alpha
 		self.xg = None
 		self.xm = None
 		self.yg = None
 		self.ym = None
-		self.kernel = None
+		self.kernel = kernel
 		self.theta = None
 		self.success = None
 		self.verbose = verbose
@@ -46,6 +80,11 @@ class BatchedGaussianProcessRegressor():
 		self.optimize = optimize
 	
 	def make_kernel(self, h_element, l_scale, q, p):
+		"""
+		
+		Parameters
+		----------
+		"""
 		return Normalization(
 			MarginalizedGraphKernel(
 				node_kernel=TensorProduct(
@@ -231,12 +270,15 @@ class BatchedGaussianProcessRegressor():
 		self.cs = (self.cs - self.csmean) / self.csstd
 		
 		if ~self.optimize:
-			assert(x0 is not None)
+			if kernel == None:
+				assert(x0 is not None)
+				helm, lscale, q, p = x0
+				
+				self.kernel = self.make_kernel(helm, lscale, q, p)
+				self.theta = (helm, lscale, q, p)
+			else:
+				self.theta = self.kernel.theta
 			
-			helm, lscale, q, p = x0
-			
-			self.kernel = self.make_kernel(helm, lscale, q, p)
-			self.theta = (helm, lscale, q, p)
 			K = self.batched_kernel_call()
 			# Regularize
 			d = np.diag(K)*(1+self.alpha)
@@ -249,7 +291,7 @@ class BatchedGaussianProcessRegressor():
 			yky = self.cs @ self.Ky
 			self.log_marginal_prob = yky + logdet
 			
-			return True
+			return self
 			
 		# p bounds 1 and 50
 		cons = ({'type':'ineq', 'fun':lambda x: x[0] - 1e-7},

@@ -16,12 +16,15 @@ def distance(xyz1, xyz2):
 
 
 data = json.load(lzma.open(sys.argv[1],mode='rt',encoding='utf-8'))
-
+print(len(data))
 # Kang 2020 filtering 
-firstpass = []
 allowed = ['H', 'C', 'N', 'O', 'F', 'S', 'P', 'Cl']
-for row in data:
-	if len(row['shifts']) > 64: continue
+for i, row in enumerate(data):
+	if len(row['shifts']) > 64:
+		data.pop(i)
+		print('too big')
+		continue
+	
 	skip = False
 	for sym in row['symbols']:
 		if sym not in allowed:
@@ -29,24 +32,23 @@ for row in data:
 			break
 	
 	if skip:
+		data.pop(i)
+		print('atom not allowed')
 		continue
 	
 	skip = False
-	for sym, shift in zip(row['shifts'], row['symbols']):
-		if sym == 'C' or sym == 'H':
-			if shift is None:
+	for shift, sym in zip(row['shifts'], row['symbols']):
+		if sym == 'C':
+			if shift == None:
 				skip = True
 				break
-	
-	if skip: continue
-	firstpass.append(row)
-	#sys.exit()
+	if skip:
+		data.pop(i)
+		print('incomplete assignment')
+		continue
 
 print(len(data))
-print(len(firstpass))
 
-data = []
-data = firstpass
 # Identify graphs with bad coordinates, all on top of each other
 # removing them from the list
 bad = list()
@@ -91,7 +93,7 @@ for i, row in enumerate(datafilter):
 dups  = 0
 udups = 0
 for k, v in sorted(smiles.items(), key=lambda item: item[1], reverse=True):
-	if v == 1: break
+	if v == 1: continue
 	dups += v
 	udups += 1 
 
